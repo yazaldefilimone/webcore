@@ -1,1 +1,2 @@
-pub mod dom;
+mod dom;
+pub use dom::*;
