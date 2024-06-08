@@ -1,2 +1,2 @@
 mod parser;
-pub use parser::Parser;
+pub use parser::HTMLParser;
