@@ -1,0 +1,30 @@
+---
+source: tests/cases_tests.rs
+input_file: tests/cases/html/nested_element.html
+---
+Node {
+    children: [
+        Node {
+            children: [
+                Node {
+                    children: [],
+                    node_type: Text(
+                        "Hello",
+                    ),
+                },
+            ],
+            node_type: Element(
+                Element {
+                    tag_name: "p",
+                    atributes: {},
+                },
+            ),
+        },
+    ],
+    node_type: Element(
+        Element {
+            tag_name: "div",
+            atributes: {},
+        },
+    ),
+}

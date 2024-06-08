@@ -1,0 +1,18 @@
+---
+source: tests/cases_tests.rs
+input_file: tests/cases/html/atributes.html
+---
+Node {
+    children: [],
+    node_type: Element(
+        Element {
+            tag_name: "div",
+            atributes: {
+                "data-test-2": "test2",
+                "data-test": "test",
+                "id": "main",
+                "style": "color: red",
+            },
+        },
+    ),
+}
