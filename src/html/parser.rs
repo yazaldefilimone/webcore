@@ -1,95 +1,143 @@
 use crate::dom;
+use crate::utils::validation::is_tag_char;
 
-pub struct Parser {
+pub struct HTMLParser {
   input: String,
   cursor: usize,
 }
 
-impl Parser {
+impl HTMLParser {
   pub fn new(input: String) -> Self {
-    Parser { input, cursor: 0 }
+    HTMLParser { input, cursor: 0 }
   }
 
-  pub fn parse(&mut self) -> Vec<dom::Node> {
+  pub fn parse(&mut self) -> dom::Node {
+    let mut nodes = self.parse_nodes();
+    if nodes.len() == 1 {
+      return nodes.swap_remove(0);
+    }
+    dom::create_element("html".to_string(), dom::AtributeMapType::new(), nodes)
+  }
+
+  fn parse_nodes(&mut self) -> Vec<dom::Node> {
+    self.skip_trivial();
     let mut nodes = Vec::new();
-    while self.cursor < self.input.len() {
-      let node = self.parse_node();
-      nodes.push(node);
+    while !self.is_end() && !self.starts_with("</") {
+      nodes.push(self.parse_node());
+      self.skip_trivial();
     }
     nodes
   }
 
   fn parse_node(&mut self) -> dom::Node {
-    let start = self.cursor;
-    self.skip_whitespace();
-    let node = match self.input.chars().nth(self.cursor) {
-      Some('<') => self.parse_element(),
-      Some('>') => self.parse_text(),
+    match self.peek_one() {
+      '<' => self.parse_element(),
       _ => self.parse_text(),
-    };
-    self.cursor = start;
-    node
+    }
   }
 
   fn parse_element(&mut self) -> dom::Node {
-    self.cursor += 1;
+    self.consume_expect("<");
     let tag_name = self.parse_tag_name();
-    let atributes = self.parse_atributes();
-    dom::create_element_node(tag_name, atributes)
+    let attributes = self.parse_attributes();
+    self.consume_expect(">");
+    let children = self.parse_nodes();
+
+    self.consume_expect("<");
+    self.consume_expect("/");
+    self.consume_expect(&tag_name);
+    self.consume_expect(">");
+    dom::create_element(tag_name, attributes, children)
   }
 
   fn parse_text(&mut self) -> dom::Node {
-    let start = self.cursor;
-    self.skip_whitespace();
-    let end = self.cursor;
-    let text = self.input[start..end].to_string();
-    dom::create_text_node(text)
+    let text = self.consume_while(|character| character != '<');
+    dom::create_text(text)
   }
 
   fn parse_tag_name(&mut self) -> String {
-    let start = self.cursor;
-    self.skip_whitespace();
-    let end = self.cursor;
-    let tag_name = self.input[start..end].to_string();
-    self.cursor = end;
-    tag_name
+    self.consume_while(is_tag_char)
   }
 
-  fn parse_atributes(&mut self) -> dom::AtributeMapType {
-    let mut atributes = dom::AtributeMapType::new();
-    while self.cursor < self.input.len() {
+  fn parse_attribute(&mut self) -> (String, String) {
+    let name = self.parse_tag_name();
+    self.consume_expect("=");
+    let value = self.parse_attribute_value();
+    (name, value)
+  }
+
+  fn parse_attribute_value(&mut self) -> String {
+    let open_quote = self.consume();
+    assert!(open_quote == '"' || open_quote == '\'');
+    let value = self.consume_while(|c| c != open_quote);
+    self.consume_expect(open_quote.to_string().as_str());
+    value
+  }
+
+  fn parse_attributes(&mut self) -> dom::AtributeMapType {
+    let mut attributes = dom::AtributeMapType::new();
+    self.skip_whitespace();
+    while self.peek_one() != '>' && self.peek_one() != '/' {
+      let (name, value) = self.parse_attribute();
+      attributes.insert(name, value);
       self.skip_whitespace();
-      if self.input.chars().nth(self.cursor) == Some('>') {
-        break;
-      }
-      let start = self.cursor;
-      self.skip_whitespace();
-      let end = self.cursor;
-      let name = self.input[start..end].to_string();
-      self.skip_whitespace();
-      if self.input.chars().nth(self.cursor) != Some('=') {
-        break;
-      }
-      self.cursor += 1;
-      self.skip_whitespace();
-      let start = self.cursor;
-      self.skip_whitespace();
-      let end = self.cursor;
-      let value = self.input[start..end].to_string();
-      atributes.insert(name, value);
     }
-    atributes
+    attributes
   }
 
   fn skip_whitespace(&mut self) {
-    while self.cursor < self.input.len() && self.input.chars().nth(self.cursor) == Some(' ') {
-      self.cursor += 1;
+    self.consume_while(char::is_whitespace);
+  }
+
+  fn skip_trivial(&mut self) {
+    self.skip_whitespace();
+  }
+
+  fn peek_one(&self) -> char {
+    self.input[self.cursor..].chars().next().unwrap()
+  }
+
+  fn peek_many(&self, count: usize) -> String {
+    self.input[self.cursor..].chars().take(count).collect()
+  }
+
+  fn starts_with(&self, s: &str) -> bool {
+    self.input[self.cursor..].starts_with(s)
+  }
+
+  fn is_end(&self) -> bool {
+    self.cursor >= self.input.len()
+  }
+
+  fn advance_one(&mut self) {
+    self.cursor += 1;
+  }
+
+  fn advance_many(&mut self, count: usize) {
+    self.cursor += count;
+  }
+
+  fn consume(&mut self) -> char {
+    let mut iter = self.input[self.cursor..].char_indices();
+    let (_, cur_char) = iter.next().unwrap();
+    let (next_cursor, _) = iter.next().unwrap_or((1, ' '));
+    self.cursor += next_cursor;
+    cur_char
+  }
+
+  fn consume_expect(&mut self, text: &str) {
+    if &self.peek_many(text.len()) == text {
+      self.advance_many(text.len());
+    } else {
+      panic!("Expected '{}' but got '{}'", text, &self.peek_many(text.len()));
     }
   }
 
-  fn skip_newline(&mut self) {
-    while self.cursor < self.input.len() && self.input.chars().nth(self.cursor) == Some('\n') {
-      self.cursor += 1;
+  fn consume_while(&mut self, mut test: impl FnMut(char) -> bool) -> String {
+    let start_cursor = self.cursor;
+    while !self.is_end() && test(self.peek_one()) {
+      self.advance_one();
     }
+    self.input[start_cursor..self.cursor].to_string()
   }
 }
