@@ -1,4 +1,5 @@
-use crate::{css, utils::validation::is_valid_identifier_char};
+use crate::css;
+use crate::utils::validation::is_tag_char;
 
 struct Parser {
   input: String,
@@ -32,7 +33,7 @@ impl Parser {
     u8::from_str_radix(s, 16).unwrap()
   }
   fn parse_identifier(&mut self) -> String {
-    return self.consume_while(is_valid_identifier_char);
+    return self.consume_while(is_tag_char);
   }
 
   fn skip_whitespace(&mut self) {
