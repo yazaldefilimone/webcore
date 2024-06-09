@@ -12,12 +12,14 @@ pub struct Declaration {
   pub value: DeclarationValue,
 }
 
+#[derive(Debug, Clone, PartialEq)]
 pub enum DeclarationValue {
   Keyword(String),
   Length(f32, UnitValue),
   Color(ColorValue),
 }
 
+#[derive(Debug, Clone, PartialEq)]
 pub enum UnitValue {
   Px,
   Em,
@@ -30,6 +32,7 @@ pub struct ColorValue {
   pub r: u8,
   pub g: u8,
   pub b: u8,
+  pub a: u8,
 }
 
 impl Copy for ColorValue {}
@@ -44,9 +47,18 @@ pub struct SimpleSelector {
   pub class: Vec<String>,
 }
 
+impl SimpleSelector {
+  pub fn new() -> Self {
+    SimpleSelector { tag_name: None, id: None, class: Vec::new() }
+  }
+}
+
 pub type Specificity = (usize, usize, usize);
 
 impl Selector {
+  pub fn new() -> Self {
+    Selector::Simple(SimpleSelector::new())
+  }
   pub fn specificity(&self) -> Specificity {
     // http://www.w3.org/TR/selectors/#specificity
     let Selector::Simple(SimpleSelector { tag_name, id, class }) = self;
