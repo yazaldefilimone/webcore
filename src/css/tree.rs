@@ -9,6 +9,7 @@ use std::collections::HashMap;
 type PropertyMap = HashMap<String, DeclarationValue>;
 
 // A node with associated style data.
+#[derive(Debug, Clone)]
 pub struct StyledNode<'a> {
   pub node: &'a Node, // pointer to a DOM node
   pub specified_values: PropertyMap,
@@ -30,7 +31,7 @@ fn matches_simple_selector(elem: &Element, selector: &SimpleSelector) -> bool {
   }
 
   // Check ID selector
-  if selector.id.iter().any(|id| elem.id() != Some(id)) {
+  if selector.id.iter().any(|id| elem.id() != *id) {
     return false;
   }
 
