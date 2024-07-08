@@ -99,7 +99,6 @@ impl Parser {
 
   fn parse_value(&mut self) -> css::DeclarationValue {
     let value = self.parse_identifier();
-    if
     css::DeclarationValue::Keyword(value)
   }
 
@@ -124,7 +123,6 @@ impl Parser {
     });
     float.parse().unwrap()
   }
-
 
   // todo: support other color formats, e.g. hex, rgba, hsla...
   fn parse_color(&mut self) -> css::DeclarationValue {
