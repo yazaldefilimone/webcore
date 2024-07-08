@@ -40,19 +40,19 @@ pub struct LayoutBox<'a> {
   children: Vec<LayoutBox<'a>>,
 }
 
-impl LayoutBox<'_> {
-  fn new(box_modal_type: BoxModalType) -> Self {
+impl<'a> LayoutBox<'a> {
+  fn new(box_modal_type: BoxModalType<'a>) -> Self {
     LayoutBox { dimensions: Dimensions::default(), box_modal_type, children: Vec::new() }
   }
   // Where a new inline child should go.
-  fn get_inline_container(&mut self) -> &mut LayoutBox {
+  fn get_inline_container(&mut self) -> &mut LayoutBox<'a> {
     match self.box_modal_type {
       BoxModalType::InlineNode(_) | BoxModalType::AnonymousBlock => self,
       BoxModalType::BlockNode(_) => {
         // If we've just generated an anonymous block box, keep using it.
         // Otherwise, create a new one.
-        match self.children.last() {
-          Some(&LayoutBox { box_modal_type: AnonymousBlock, .. }) => {}
+        match &self.children.last() {
+          Some(LayoutBox { box_modal_type: AnonymousBlock, .. }) => {}
           _ => self.children.push(LayoutBox::new(BoxModalType::AnonymousBlock)),
         }
         self.children.last_mut().unwrap()
@@ -75,13 +75,13 @@ impl<'a> StyledNode<'a> {
 
   /// Return the specified value of property `name`, or property `fallback_name` if that doesn't
   /// exist, or value `default` if neither does.
-  pub fn lookup(&self, name: &str, fallback_name: &str, default: &DeclarationValue) -> DeclarationValue {
+  pub fn lookup(&mut self, name: &str, fallback_name: &str, default: &DeclarationValue) -> DeclarationValue {
     let declaration = self.value(name);
     declaration.unwrap_or_else(|| self.value(fallback_name).unwrap_or_else(|| default.clone()))
   }
 
   /// The value of the `display` property (defaults to inline).
-  pub fn display(&self) -> Display {
+  pub fn display(&mut self) -> Display {
     match self.value("display") {
       Some(DeclarationValue::Keyword(keyword)) => match &*keyword {
         "block" => Display::Block,
@@ -94,22 +94,15 @@ impl<'a> StyledNode<'a> {
 }
 
 // Build the tree of LayoutBoxes, but don't perform any layout calculations yet.
-fn create_layout_tree<'a>(style_node: &'a StyledNode<'a>) -> LayoutBox<'a> {
-  // Create the root box.
-  let box_modal = match style_node.display() {
-    Block => BoxModalType::BlockNode(style_node),
-    Inline => BoxModalType::InlineNode(style_node),
-    DisplayNone => panic!("Root node has display: none."),
-  };
-  let mut root = LayoutBox::new(box_modal);
+// fn create_layout_tree<'a>(style_node: &'a mut StyledNode<'a>) -> LayoutBox<'a> {
+//   // Create the root box.
+//   let box_modal = match style_node {
+//     Block => BoxModalType::BlockNode(&style_node.clone()),
+//     Inline => BoxModalType::InlineNode(style_node),
+//     _ => panic!("Root node has display: none."),
+//   };
 
-  // Create the descendant boxes.
-  for child in &style_node.children {
-    match child.display() {
-      Block => root.children.push(create_layout_tree(child)),
-      Inline => root.get_inline_container().children.push(create_layout_tree(child)),
-      DisplayNone => {} // Skip nodes with `display: none;`
-    }
-  }
-  return root;
-}
+//   let mut root = LayoutBox::new(box_modal);
+//   return root;
+//   // Create the descendant boxes.
+// }
