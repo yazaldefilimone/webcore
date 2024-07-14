@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use std::collections::{BTreeMap, HashMap, HashSet};
 
 use serde::{ser::SerializeStruct, Serialize, Serializer};
