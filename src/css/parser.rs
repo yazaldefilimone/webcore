@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use crate::css;
 use crate::utils::validation::is_tag_char;
 // ==============================
@@ -11,12 +12,12 @@ pub struct CSSParser {
 
 impl CSSParser {
   pub fn new(input: String) -> Self {
-    CSSParser { input, cursor: 0 }
+    CSSParser { input: input.trim().to_string(), cursor: 0 }
   }
 }
 
 impl CSSParser {
-  pub fn parse(&mut self) -> css::StyleSheet {
+  pub fn parse_syle_sheet(&mut self) -> css::StyleSheet {
     return css::StyleSheet { rules: self.parse_rules() };
   }
 
@@ -63,7 +64,8 @@ impl CSSParser {
           self.consume_expect(",");
           self.skip_whitespace();
         }
-        '}' => break,
+        // start a declaration block
+        '{' => break,
         character => {
           panic!("Unexpected character '{}' in selector list", character);
         }
@@ -89,6 +91,7 @@ impl CSSParser {
   /// Parse one `<property>: <value>;` declaration.
   fn parse_declaration(&mut self) -> css::Declaration {
     let property_name = self.parse_identifier();
+    self.skip_whitespace();
     self.consume_expect(":");
     self.skip_whitespace();
     let value = self.parse_value();
@@ -156,8 +159,8 @@ impl CSSParser {
 
   // todo: support more complex selectors.
   fn parse_selector(&mut self) -> css::Selector {
-    self.parse_simple_selector();
-    css::Selector::Simple(self.parse_simple_selector())
+    let simple_selector = self.parse_simple_selector();
+    css::Selector::Simple(simple_selector)
   }
 
   fn parse_identifier(&mut self) -> String {
