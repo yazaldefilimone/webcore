@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 pub struct Canvas {
   pub width: f32,
   pub height: f32,
