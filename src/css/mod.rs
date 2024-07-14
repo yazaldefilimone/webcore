@@ -1,3 +1,4 @@
+mod jit;
 mod node;
 mod parser;
 mod tree;
