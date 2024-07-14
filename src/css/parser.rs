@@ -4,23 +4,22 @@ use crate::utils::validation::is_tag_char;
 // https://www.w3.org/TR/css-syntax-3/#tokenizing-and-parsing
 //
 
-struct Parser {
+pub struct CSSParser {
   input: String,
   cursor: usize,
 }
 
-impl Parser {
+impl CSSParser {
   pub fn new(input: String) -> Self {
-    Parser { input, cursor: 0 }
+    CSSParser { input, cursor: 0 }
   }
 }
 
-pub fn parse(input: String) -> css::StyleSheet {
-  let mut parser = Parser::new(input);
-  return css::StyleSheet { rules: parser.parse_rules() };
-}
+impl CSSParser {
+  pub fn parse(&mut self) -> css::StyleSheet {
+    return css::StyleSheet { rules: self.parse_rules() };
+  }
 
-impl Parser {
   fn parse_rules(&mut self) -> Vec<css::Rule> {
     let mut rules = Vec::new();
     while !self.is_end() {
