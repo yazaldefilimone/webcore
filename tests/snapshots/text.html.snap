@@ -2,47 +2,52 @@
 source: tests/cases_tests.rs
 input_file: tests/cases/html/text.html
 ---
-Node(
+HtmlRoot(
+  doctype: None,
   children: [
     Node(
       children: [
         Node(
-          children: [],
-          node_type: Text("Hello world!"),
-        ),
-      ],
-      node_type: Element(Element(
-        tag_name: "p",
-        atributes: {},
-      )),
-    ),
-    Node(
-      children: [
-        Node(
-          children: [],
-          node_type: Text("How are you? "),
+          children: [
+            Node(
+              children: [],
+              node_type: Text("Hello world!"),
+            ),
+          ],
+          node_type: Element(Element(
+            tag_name: "p",
+            atributes: {},
+          )),
         ),
         Node(
           children: [
             Node(
               children: [],
-              node_type: Text("David"),
+              node_type: Text("How are you? "),
+            ),
+            Node(
+              children: [
+                Node(
+                  children: [],
+                  node_type: Text("David"),
+                ),
+              ],
+              node_type: Element(Element(
+                tag_name: "em",
+                atributes: {},
+              )),
             ),
           ],
           node_type: Element(Element(
-            tag_name: "em",
+            tag_name: "p",
             atributes: {},
           )),
         ),
       ],
       node_type: Element(Element(
-        tag_name: "p",
+        tag_name: "div",
         atributes: {},
       )),
     ),
   ],
-  node_type: Element(Element(
-    tag_name: "div",
-    atributes: {},
-  )),
 )
