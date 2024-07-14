@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use crate::css::{DeclarationValue, Rule, Selector, SimpleSelector, Specificity, StyleSheet};
 use crate::dom::{Element, Node, NodeType};
 use std::collections::HashMap;
