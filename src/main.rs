@@ -10,7 +10,9 @@ mod network;
 mod paint;
 mod utils;
 fn main() {
-  let html = r#"<html>
+  let html = r#"
+  <!DOCTYPE html>
+    <html>
     <body>
       <h1>Title</h1>
       <div id="main" class="test">
@@ -19,6 +21,6 @@ fn main() {
     </body>
   </html>"#;
   let mut html = HTMLParser::new(html.to_string());
-  let node = html.parse();
+  let node = html.parse_root();
   println!("{:#?}", node);
 }
