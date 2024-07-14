@@ -8,15 +8,57 @@ pub struct HTMLParser {
 
 impl HTMLParser {
   pub fn new(input: String) -> Self {
-    HTMLParser { input, cursor: 0 }
+    HTMLParser { input: input.trim().to_string(), cursor: 0 }
   }
 
-  pub fn parse(&mut self) -> dom::Node {
-    let mut nodes = self.parse_nodes();
-    if nodes.len() == 1 {
-      return nodes.swap_remove(0);
+  pub fn parse_root_children(&mut self) -> Vec<dom::Node> {
+    let nodes = self.parse_nodes();
+    return nodes;
+  }
+  pub fn parse_root(&mut self) -> dom::HtmlRoot {
+    let doctype = self.parse_doctype();
+    let children = self.parse_root_children();
+    return dom::HtmlRoot { doctype, children };
+  }
+
+  pub fn parse_doctype(&mut self) -> Option<dom::Doctype> {
+    if self.peek_many(2) != "<!" {
+      return None;
     }
-    dom::create_element("html".to_string(), dom::AtributeMapType::new(), nodes)
+    self.consume_expect("<!");
+    self.skip_whitespace();
+    // consume the name of the doctype
+    self.consume_while(is_tag_char);
+    self.skip_whitespace();
+    let name = self.consume_while(is_tag_char);
+    self.skip_whitespace();
+    let public_id = self.parse_public_id();
+    self.skip_whitespace();
+    let system_id = self.parse_system_id();
+    self.consume_expect(">");
+    Some(dom::Doctype { name, public_id, system_id })
+  }
+
+  fn parse_public_id(&mut self) -> Option<String> {
+    if self.peek_many(6) != "PUBLIC" {
+      return None;
+    }
+    self.consume_expect("PUBLIC");
+    self.consume_expect("\"");
+    let public_id = self.consume_while(|character| character != '"');
+    self.consume_expect("\"");
+    Some(public_id)
+  }
+
+  fn parse_system_id(&mut self) -> Option<String> {
+    if self.peek_many(6) != "SYSTEM" {
+      return None;
+    }
+    self.consume_expect("SYSTEM");
+    self.consume_expect("\"");
+    let system_id = self.consume_while(|character| character != '"');
+    self.consume_expect("\"");
+    Some(system_id)
   }
 
   fn parse_nodes(&mut self) -> Vec<dom::Node> {
@@ -40,6 +82,11 @@ impl HTMLParser {
     self.consume_expect("<");
     let tag_name = self.parse_tag_name();
     let attributes = self.parse_attributes();
+    // suport self-closing tag
+    if self.peek_many(2) == "/>" {
+      self.consume_expect("/>");
+      return dom::create_element(tag_name, attributes, Vec::new());
+    }
     self.consume_expect(">");
     let children = self.parse_nodes();
 
