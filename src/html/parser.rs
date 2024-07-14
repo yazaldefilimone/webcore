@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use crate::dom;
 use crate::utils::validation::is_tag_char;
 
