@@ -1,0 +1,128 @@
+---
+source: tests/cases_tests.rs
+input_file: tests/cases/html/templete.html
+---
+HtmlRoot(
+  doctype: Some(Doctype(
+    name: "html",
+    public_id: None,
+    system_id: None,
+  )),
+  children: [
+    Node(
+      children: [
+        Node(
+          children: [
+            Node(
+              children: [
+                Node(
+                  children: [],
+                  node_type: Text("Title"),
+                ),
+              ],
+              node_type: Element(Element(
+                tag_name: "title",
+                atributes: {},
+              )),
+            ),
+            Node(
+              children: [],
+              node_type: Element(Element(
+                tag_name: "meta",
+                atributes: {
+                  "charset": "utf-8",
+                },
+              )),
+            ),
+            Node(
+              children: [],
+              node_type: Element(Element(
+                tag_name: "link",
+                atributes: {
+                  "href": "style.css",
+                  "rel": "stylesheet",
+                },
+              )),
+            ),
+            Node(
+              children: [],
+              node_type: Element(Element(
+                tag_name: "script",
+                atributes: {
+                  "src": "script.js",
+                },
+              )),
+            ),
+          ],
+          node_type: Element(Element(
+            tag_name: "head",
+            atributes: {},
+          )),
+        ),
+        Node(
+          children: [
+            Node(
+              children: [
+                Node(
+                  children: [],
+                  node_type: Text("Title"),
+                ),
+              ],
+              node_type: Element(Element(
+                tag_name: "h1",
+                atributes: {},
+              )),
+            ),
+            Node(
+              children: [
+                Node(
+                  children: [
+                    Node(
+                      children: [],
+                      node_type: Text("Hello "),
+                    ),
+                    Node(
+                      children: [
+                        Node(
+                          children: [],
+                          node_type: Text("world"),
+                        ),
+                      ],
+                      node_type: Element(Element(
+                        tag_name: "em",
+                        atributes: {},
+                      )),
+                    ),
+                    Node(
+                      children: [],
+                      node_type: Text("!"),
+                    ),
+                  ],
+                  node_type: Element(Element(
+                    tag_name: "p",
+                    atributes: {},
+                  )),
+                ),
+              ],
+              node_type: Element(Element(
+                tag_name: "div",
+                atributes: {
+                  "class": "test",
+                  "id": "main",
+                },
+              )),
+            ),
+          ],
+          node_type: Element(Element(
+            tag_name: "body",
+            atributes: {},
+          )),
+        ),
+      ],
+      node_type: Element(Element(
+        tag_name: "html",
+        atributes: {},
+      )),
+    ),
+  ],
+)
