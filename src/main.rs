@@ -1,6 +1,5 @@
 use html::HTMLParser;
 
-#[allow(dead_code)]
 mod css;
 mod diagnostics;
 mod dom;
