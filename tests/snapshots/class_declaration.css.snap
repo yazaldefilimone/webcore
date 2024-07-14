@@ -1,0 +1,25 @@
+---
+source: tests/cases_tests.rs
+input_file: tests/cases/css/class_declaration.css
+---
+StyleSheet(
+  rules: [
+    Rule(
+      selectors: [
+        Simple(SimpleSelector(
+          tag_name: None,
+          id: None,
+          class: [
+            "test",
+          ],
+        )),
+      ],
+      declarations: [
+        Declaration(
+          name: "color",
+          value: Keyword("red"),
+        ),
+      ],
+    ),
+  ],
+)
