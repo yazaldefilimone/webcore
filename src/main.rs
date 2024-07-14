@@ -6,6 +6,7 @@ mod diagnostics;
 mod dom;
 mod html;
 mod layout;
+mod network;
 mod paint;
 mod utils;
 fn main() {
