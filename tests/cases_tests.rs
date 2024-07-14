@@ -57,7 +57,7 @@ fn parse_html(code: &str) -> TestResult {
 }
 
 fn parse_css(code: &str) -> TestResult {
-  TestResult::StyleSheet(CSSParser::new(code.to_string()).parse())
+  TestResult::StyleSheet(CSSParser::new(code.to_string()).parse_syle_sheet())
 }
 
 #[test]
