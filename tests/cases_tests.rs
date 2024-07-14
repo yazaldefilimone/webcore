@@ -1,14 +1,14 @@
 use insta::{assert_ron_snapshot, Settings};
 use std::path::Path;
 use webcore::css::{CSSParser, StyleSheet};
-use webcore::dom::Node;
+use webcore::dom::HtmlRoot;
 use webcore::html::HTMLParser;
 
 const CSS_TESTS_PATH: &str = "tests/cases/css/";
 const HTML_TESTS_PATH: &str = "tests/cases/html/";
 
 enum TestResult {
-  Node(Node),
+  HtmlRoot(HtmlRoot),
   StyleSheet(StyleSheet),
 }
 
@@ -30,7 +30,7 @@ fn run_test(file_name: &str, file_path: &Path, run_fns: &[&RunFn]) {
   settings.bind(|| {
     for result in results.iter() {
       match result {
-        TestResult::Node(node) => assert_ron_snapshot!(snapshot_name, node),
+        TestResult::HtmlRoot(html_root) => assert_ron_snapshot!(snapshot_name, html_root),
         TestResult::StyleSheet(stylesheet) => assert_ron_snapshot!(snapshot_name, stylesheet),
       }
     }
@@ -53,7 +53,7 @@ fn run_tests_in_dir(path: &Path, run_fns: &[&RunFn]) {
 }
 
 fn parse_html(code: &str) -> TestResult {
-  TestResult::Node(HTMLParser::new(code.to_string()).parse())
+  TestResult::HtmlRoot(HTMLParser::new(code.to_string()).parse_root())
 }
 
 fn parse_css(code: &str) -> TestResult {
