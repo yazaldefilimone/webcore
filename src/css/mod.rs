@@ -1,3 +1,4 @@
+#![allow(dead_code, unused_imports)]
 mod jit;
 mod node;
 mod parser;
