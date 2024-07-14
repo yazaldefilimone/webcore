@@ -1,9 +1,8 @@
-use insta::assert_snapshot;
-use itertools::Itertools;
-use std::{collections::HashMap, path::Path};
-use web_core::css::{CSSParser, StyleSheet};
-use web_core::dom::Node;
-use web_core::html::HTMLParser;
+use insta::{assert_ron_snapshot, Settings};
+use std::path::Path;
+use webcore::css::{CSSParser, StyleSheet};
+use webcore::dom::Node;
+use webcore::html::HTMLParser;
 
 const CSS_TESTS_PATH: &str = "tests/cases/css/";
 const HTML_TESTS_PATH: &str = "tests/cases/html/";
@@ -15,94 +14,58 @@ enum TestResult {
 
 type RunFn = dyn Fn(&str) -> TestResult;
 
-fn run_test(name: &str, path: &Path, run: &[&RunFn], module_path: &str) {
-  println!("Running test: {}...", name);
-  println!("path: {}", path.display());
-  let code = std::fs::read_to_string(path).expect("Failed to read test file");
-  let file_name = path.to_str().and_then(|path| path.rsplit_once(module_path)).unwrap().1;
-  let file_path = format!("{}{}", &module_path[1..], file_name);
-  let file_path = Path::new(&file_path);
+fn run_test(file_name: &str, file_path: &Path, run_fns: &[&RunFn]) {
+  println!("Running test: {}...", file_name);
+  let code = std::fs::read_to_string(file_path).expect("Failed to read test file");
 
-  let mut results: HashMap<&Path, Vec<TestResult>> = HashMap::new();
+  let results: Vec<TestResult> = run_fns.iter().map(|run_fn| run_fn(&code)).collect();
 
-  for run_fn in run {
-    let result = run_fn(&code);
-    results.entry(file_path).or_default().push(result);
-  }
-
-  let results = results
-    .into_values()
-    .map(|results| {
-      results
-        .into_iter()
-        .map(|result| match result {
-          TestResult::Node(node) => format!("{:#?}", node),
-          TestResult::StyleSheet(stylesheet) => format!("{:#?}", stylesheet),
-        })
-        .collect_vec()
-    })
-    .flatten()
-    .collect_vec();
-
-  let mut settings = insta::Settings::clone_current();
+  let mut settings = Settings::clone_current();
   settings.set_prepend_module_to_snapshot(false);
   settings.set_omit_expression(true);
-  settings.set_input_file(path);
+  settings.set_input_file(file_path);
+
+  let snapshot_name = file_path.to_str().unwrap().split("/").last().unwrap();
+
   settings.bind(|| {
-    for result in results {
-      assert_snapshot!(result);
+    for result in results.iter() {
+      match result {
+        TestResult::Node(node) => assert_ron_snapshot!(snapshot_name, node),
+        TestResult::StyleSheet(stylesheet) => assert_ron_snapshot!(snapshot_name, stylesheet),
+      }
     }
   });
 }
 
-fn run_tests(path: &Path, run: &[&RunFn], module_path: &str) {
-  let mut paths = Vec::new();
-  for entry in std::fs::read_dir(path).unwrap() {
-    let entry = entry.unwrap();
-    let path = entry.path();
-    if path.is_file() {
-      paths.push(path);
-    }
-  }
+fn run_tests_in_dir(path: &Path, run_fns: &[&RunFn]) {
+  let paths: Vec<_> = std::fs::read_dir(path)
+    .expect("Failed to read directory")
+    .filter_map(Result::ok)
+    .map(|entry| entry.path())
+    .filter(|path| path.is_file())
+    .collect();
 
-  paths.sort();
   for path in paths {
-    let name = path.to_str().unwrap().split(module_path).last().unwrap();
-    run_test(name, &path, run, module_path);
+    if let Some(name) = path.file_stem().and_then(|os_str| os_str.to_str()) {
+      run_test(name, &path, run_fns);
+    }
   }
 }
 
 fn parse_html(code: &str) -> TestResult {
-  let mut parser = HTMLParser::new(code.to_string());
-  TestResult::Node(parser.parse())
+  TestResult::Node(HTMLParser::new(code.to_string()).parse())
 }
 
 fn parse_css(code: &str) -> TestResult {
-  let mut parser = CSSParser::new(code.to_string());
-  TestResult::StyleSheet(parser.parse())
-}
-
-fn run_multiple_dirs(path: &Path, run: &[&RunFn], module_path: &str) {
-  let root = path.to_str().unwrap();
-  let walker = walkdir::WalkDir::new(path).into_iter();
-  for entry in walker.filter_map(|e| e.ok()) {
-    let path = entry.path();
-    if path.is_file() {
-      let name = path.to_str().unwrap().split(root).last().unwrap();
-      eprintln!("Running test: {}...", name);
-      run_test(name, &path, run, module_path);
-    }
-  }
+  TestResult::StyleSheet(CSSParser::new(code.to_string()).parse())
 }
 
 #[test]
 fn test_html_parser() {
-  let path = Path::new(HTML_TESTS_PATH);
-  run_multiple_dirs(path, &[&parse_html], HTML_TESTS_PATH);
+  run_tests_in_dir(Path::new(HTML_TESTS_PATH), &[&parse_html]);
 }
 
 #[test]
 fn test_css_parser() {
-  let path = Path::new(CSS_TESTS_PATH);
-  run_multiple_dirs(path, &[&parse_css], CSS_TESTS_PATH);
+  run_tests_in_dir(Path::new(CSS_TESTS_PATH), &[&parse_css]);
 }
