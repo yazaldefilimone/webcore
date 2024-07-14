@@ -31,10 +31,10 @@ impl Element {
     self.atributes.get("id").unwrap().to_string()
   }
 
-  pub fn classes(&self) -> HashSet<String> {
+  pub fn classes(&self) -> HashSet<&str> {
     let mut classes = HashSet::new();
     for class in self.atributes.get("class").unwrap().split(" ") {
-      classes.insert(class.to_string());
+      classes.insert(class);
     }
     classes
   }
