@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 pub struct URL {
   pub scheme: String,
   pub host: String,
