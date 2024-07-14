@@ -20,7 +20,6 @@ pub struct StyledNode<'a> {
 fn matches(elem: &Element, selector: &Selector) -> bool {
   match *selector {
     Selector::Simple(ref simple_selector) => matches_simple_selector(elem, simple_selector),
-    _ => false,
   }
 }
 
@@ -49,8 +48,8 @@ type MatchedRule<'a> = (Specificity, &'a Rule);
 // If `rule` matches `elem`, return a `MatchedRule`. Otherwise return `None`.
 fn match_rule<'a>(elem: &Element, rule: &'a Rule) -> Option<MatchedRule<'a>> {
   // Find the first (highest-specificity) matching selector.
-  let mut vector = rule.selectors.iter();
-  let selector = vector.find(|selector| matches(elem, selector));
+  let mut selector_vector = rule.selectors.iter();
+  let selector = selector_vector.find(|selector| matches(elem, selector));
   selector.map(|selector| (selector.specificity(), rule))
 }
 
