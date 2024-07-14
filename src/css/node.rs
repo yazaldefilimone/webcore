@@ -1,27 +1,27 @@
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize)]
 pub struct StyleSheet {
   pub rules: Vec<Rule>,
 }
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize)]
 pub struct Rule {
   pub selectors: Vec<Selector>,
   pub declarations: Vec<Declaration>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize)]
 pub struct Declaration {
   pub name: String,
   pub value: DeclarationValue,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, serde::Serialize)]
 pub enum DeclarationValue {
   Keyword(String),
   Length(f32, UnitValue),
   Color(ColorValue),
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, serde::Serialize)]
 pub enum UnitValue {
   Px,
   Em,
@@ -29,7 +29,7 @@ pub enum UnitValue {
   Percent,
 }
 
-#[derive(Debug, Clone, PartialEq, Default)]
+#[derive(Debug, Clone, PartialEq, Default, serde::Serialize)]
 pub struct ColorValue {
   pub r: u8,
   pub g: u8,
@@ -39,12 +39,12 @@ pub struct ColorValue {
 
 impl Copy for ColorValue {}
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize)]
 pub enum Selector {
   // .selector
   Simple(SimpleSelector),
 }
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize)]
 pub struct SimpleSelector {
   pub tag_name: Option<String>,
   pub id: Option<String>,
