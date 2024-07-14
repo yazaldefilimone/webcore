@@ -1,11 +1,13 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeMap, HashMap, HashSet};
 
-#[derive(Debug, Clone)]
+use serde::{ser::SerializeStruct, Serialize, Serializer};
+
+#[derive(Debug, Clone, serde::Serialize)]
 pub struct Node {
   pub children: Vec<Node>,
   pub node_type: NodeType,
 }
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize)]
 pub enum NodeType {
   Text(String),
   Element(Element),
@@ -17,6 +19,20 @@ pub type AtributeMapType = HashMap<String, String>;
 pub struct Element {
   pub tag_name: String,
   pub atributes: AtributeMapType,
+}
+
+// This is a better implementation of Serialize for HashMap? (we use it in snapshot tests)
+impl Serialize for Element {
+  fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+  where
+    S: Serializer,
+  {
+    let ordered_attributes: BTreeMap<_, _> = self.atributes.iter().collect();
+    let mut state = serializer.serialize_struct("Element", 2)?;
+    state.serialize_field("tag_name", &self.tag_name)?;
+    state.serialize_field("atributes", &ordered_attributes)?;
+    state.end()
+  }
 }
 
 pub fn create_text(text: String) -> Node {
