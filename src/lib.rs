@@ -15,5 +15,5 @@ pub fn parse_html(input: String) -> dom::HtmlRoot {
 
 pub fn parse_css(input: String) -> css::StyleSheet {
   let mut parser = CSSParser::new(input);
-  parser.parse()
+  parser.parse_syle_sheet()
 }
