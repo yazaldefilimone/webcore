@@ -1,12 +1,14 @@
+#[derive(Debug, Clone)]
 pub struct StyleSheet {
   pub rules: Vec<Rule>,
 }
-
+#[derive(Debug, Clone)]
 pub struct Rule {
   pub selectors: Vec<Selector>,
   pub declarations: Vec<Declaration>,
 }
 
+#[derive(Debug, Clone)]
 pub struct Declaration {
   pub name: String,
   pub value: DeclarationValue,
@@ -37,10 +39,12 @@ pub struct ColorValue {
 
 impl Copy for ColorValue {}
 
+#[derive(Debug, Clone)]
 pub enum Selector {
   // .selector
   Simple(SimpleSelector),
 }
+#[derive(Debug, Clone)]
 pub struct SimpleSelector {
   pub tag_name: Option<String>,
   pub id: Option<String>,
