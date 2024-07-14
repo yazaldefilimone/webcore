@@ -1,4 +1,4 @@
-#[allow(dead_code)]
+#![allow(dead_code)]
 pub fn is_tag_char(character: char) -> bool {
   // TODO: Include U+00A0 and higher.
   match character {
