@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 #[derive(Debug, Clone, serde::Serialize)]
 pub struct StyleSheet {
   pub rules: Vec<Rule>,
