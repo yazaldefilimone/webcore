@@ -1,14 +1,18 @@
 [package]
-name = "web-core"
+name = "webcore"
 version = "0.1.0"
 edition = "2021"
 
 [lib]
-name = "web_core"
+name = "webcore"
 path = "src/lib.rs"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-insta = "1.39.0"
-itertools = "0.13.0"
+serde = { version = "1.0", features = ["derive"] }
+
+[dev-dependencies]
+insta = { version = "1.39.0", features = ["ron"] }
 walkdir = "2.5.0"
+itertools = "0.13.0"
+row = "0.2.0"
