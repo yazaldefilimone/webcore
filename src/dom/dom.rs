@@ -35,6 +35,21 @@ impl Serialize for Element {
   }
 }
 
+// Doctype
+//
+#[derive(Debug, Clone, serde::Serialize)]
+pub struct Doctype {
+  pub name: String,
+  pub public_id: Option<String>,
+  pub system_id: Option<String>,
+}
+
+#[derive(Debug, Clone, serde::Serialize)]
+pub struct HtmlRoot {
+  pub doctype: Option<Doctype>,
+  pub children: Vec<Node>,
+}
+
 pub fn create_text(text: String) -> Node {
   Node { children: Vec::new(), node_type: NodeType::Text(text) }
 }
