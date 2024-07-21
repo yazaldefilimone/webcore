@@ -1,0 +1,22 @@
+---
+source: tests/snapshot_tests.rs
+---
+StyleSheet(
+  rules: [
+    Rule(
+      selectors: [
+        Simple(SimpleSelector(
+          tag_name: Some("div"),
+          id: None,
+          class: [],
+        )),
+      ],
+      declarations: [
+        Declaration(
+          name: "width",
+          value: Keyword("100px"),
+        ),
+      ],
+    ),
+  ],
+)

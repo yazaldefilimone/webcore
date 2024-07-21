@@ -1,0 +1,22 @@
+---
+source: tests/snapshot_tests.rs
+---
+StyleSheet(
+  rules: [
+    Rule(
+      selectors: [
+        Simple(SimpleSelector(
+          tag_name: None,
+          id: Some("main"),
+          class: [],
+        )),
+      ],
+      declarations: [
+        Declaration(
+          name: "color",
+          value: ColorValue(HexColorValue("ff0000")),
+        ),
+      ],
+    ),
+  ],
+)

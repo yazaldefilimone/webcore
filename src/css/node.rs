@@ -19,7 +19,14 @@ pub struct Declaration {
 pub enum DeclarationValue {
   Keyword(String),
   Length(f32, UnitValue),
-  Color(ColorValue),
+  ColorValue(ColorValue),
+}
+
+#[derive(Debug, Clone, PartialEq, serde::Serialize)]
+pub enum ColorValue {
+  HexColorValue(String),
+  RBGColorValue(u8, u8, u8, u8),
+  HSLColorValue(u8, u8, u8, u8),
 }
 
 #[derive(Debug, Clone, PartialEq, serde::Serialize)]
@@ -29,16 +36,6 @@ pub enum UnitValue {
   Rem,
   Percent,
 }
-
-#[derive(Debug, Clone, PartialEq, Default, serde::Serialize)]
-pub struct ColorValue {
-  pub r: u8,
-  pub g: u8,
-  pub b: u8,
-  pub a: u8,
-}
-
-impl Copy for ColorValue {}
 
 #[derive(Debug, Clone, serde::Serialize)]
 pub enum Selector {

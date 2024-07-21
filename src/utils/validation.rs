@@ -6,3 +6,16 @@ pub fn is_tag_char(character: char) -> bool {
     _ => false,
   }
 }
+
+pub fn is_color_pattern(pattern: &str) -> bool {
+  if pattern.starts_with("rgb") {
+    return true;
+  }
+  if pattern.starts_with("rgba") {
+    return true;
+  }
+  if pattern.contains("hsl") {
+    return true;
+  }
+  return pattern.starts_with("#");
+}

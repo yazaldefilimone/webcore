@@ -45,6 +45,7 @@ fn test_css_parser_snapshot() {
   let settings = setings_snapshot();
   settings.bind(|| {
     for (file_name, source_code) in test_files.iter() {
+      println!("running {}...", file_name);
       let stylesheet = create_syle_sheet_parser(source_code);
       let file_name = format_file_name_with_module(file_name, "css_parser", ".css");
       assert_ron_snapshot!(file_name.clone(), stylesheet);
@@ -58,6 +59,7 @@ fn test_html_parser_snapshot() {
   let settings = setings_snapshot();
   settings.bind(|| {
     for (file_name, source_code) in test_files.iter() {
+      println!("running {}...", file_name);
       let html_root = create_html_parser(source_code);
       let file_name = format_file_name_with_module(file_name, "html_parser", ".html");
       assert_ron_snapshot!(file_name.clone(), html_root);

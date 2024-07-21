@@ -95,13 +95,33 @@ impl CSSParser {
     self.consume_expect(":");
     self.skip_whitespace();
     let value = self.parse_value();
+    self.skip_whitespace();
     self.consume_expect(";");
     css::Declaration { name: property_name, value }
   }
 
   fn parse_value(&mut self) -> css::DeclarationValue {
+    // --- color
+    if self.peek_one() == '#' || self.peek_many(4) == "rgb(" || self.peek_many(5) == "rgba(" {
+      return self.parse_color();
+    }
+    // ---
     let value = self.parse_identifier();
-    css::DeclarationValue::Keyword(value)
+    return css::DeclarationValue::Keyword(value);
+  }
+
+  pub fn parse_hex_color(&mut self) -> css::ColorValue {
+    self.consume_expect("#");
+    let hex_color = self.consume_while(|character| character != ';');
+    return css::ColorValue::HexColorValue(hex_color);
+  }
+
+  fn parrse_rgb_color(&mut self) -> css::ColorValue {
+    self.consume_expect("#");
+    let r = self.parse_hex_pair();
+    let g = self.parse_hex_pair();
+    let b = self.parse_hex_pair();
+    return css::ColorValue::RBGColorValue(r, g, b, 255);
   }
 
   fn parse_value_length(&mut self) -> css::DeclarationValue {
@@ -128,11 +148,16 @@ impl CSSParser {
 
   // todo: support other color formats, e.g. hex, rgba, hsla...
   fn parse_color(&mut self) -> css::DeclarationValue {
-    self.consume_expect("#");
-    let r = self.parse_hex_pair();
-    let g = self.parse_hex_pair();
-    let b = self.parse_hex_pair();
-    css::DeclarationValue::Color(css::ColorValue { r, g, b, a: 255 })
+    match self.peek_one() {
+      '#' => {
+        let value = self.parse_hex_color();
+        return css::DeclarationValue::ColorValue(value);
+      }
+      _ => {
+        let value = self.parse_identifier();
+        return css::DeclarationValue::Keyword(value);
+      }
+    }
   }
 
   /// Parse two hexadecimal digits.
