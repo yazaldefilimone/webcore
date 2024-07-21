@@ -1,6 +1,5 @@
 ---
-source: tests/cases_tests.rs
-input_file: tests/cases/html/text.html
+source: tests/snapshot_tests.rs
 ---
 HtmlRoot(
   doctype: None,

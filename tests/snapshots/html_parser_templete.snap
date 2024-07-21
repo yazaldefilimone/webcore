@@ -1,6 +1,5 @@
 ---
-source: tests/cases_tests.rs
-input_file: tests/cases/html/templete.html
+source: tests/snapshot_tests.rs
 ---
 HtmlRoot(
   doctype: Some(Doctype(

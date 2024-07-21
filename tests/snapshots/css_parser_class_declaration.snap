@@ -1,6 +1,5 @@
 ---
-source: tests/cases_tests.rs
-input_file: tests/cases/css/class_declaration.css
+source: tests/snapshot_tests.rs
 ---
 StyleSheet(
   rules: [
