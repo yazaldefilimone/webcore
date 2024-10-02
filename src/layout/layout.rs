@@ -54,7 +54,7 @@ impl<'a> LayoutBox<'a> {
         // If we've just generated an anonymous block box, keep using it.
         // Otherwise, create a new one.
         match &self.children.last() {
-          Some(LayoutBox { box_modal_type: _AnonymousBlock, .. }) => {}
+          Some(LayoutBox { .. }) => {}
           _ => self.children.push(LayoutBox::new(BoxModalType::AnonymousBlock)),
         }
         self.children.last_mut().unwrap()
